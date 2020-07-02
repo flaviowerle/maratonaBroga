@@ -8,7 +8,7 @@ const saltRounds =10;
 
 router.get('/sign-in',(req, res)=>{
     return res.json('Sign-in!....');
-});
+});    
 
 router.get('/sign-up',async (req, res)=>{
     const {email, password} = req.body;

@@ -1,4 +1,4 @@
-const {getMessage}=require('../helpers/validator');
+const {getMessage}=require('../helpers/messages');
 
 const TYPE_JSON = 'application/json';
 const STATUS_CODE_OK = 200;

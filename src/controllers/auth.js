@@ -4,7 +4,7 @@ const { Account }  = require('../models');
 const {accountSignUp, accountSignIn} = require('../validators/account');
 const { getMessage } = require('../helpers/validator');
 const {generateJwt, generateRefreshJwt} = require('../helpers/jwt');
-const account = require('../validators/account');
+
 
 const router = express.Router();
 
@@ -20,7 +20,7 @@ router.post('/sign-in',accountSignIn, async (req, res)=>{
    const token = generateJwt({id: account.id});
    const refreshtoken = generateRefreshJwt({id: account.id});
 
-    return res.jsonOk(account, getMessage('account.signin.sucess'), {token, refreshtoken});
+    return res.jsonOK(account, getMessage('account.signin.sucess'), {token, refreshtoken});
 });        
 
 router.post('/sign-up',accountSignUp ,async (req, res)=>{
@@ -36,7 +36,32 @@ router.post('/sign-up',accountSignUp ,async (req, res)=>{
     const token = generateJwt({id: newAccount.id});
     const refreshtoken = generateRefreshJwt({id: newAccount.id});
 
-    return res.jsonOk(newAccount, getMessage('account.signup.sucess'),{token, refreshtoken});
+    return res.jsonOK(newAccount, getMessage('account.signup.sucess'),{token, refreshtoken});
 });
+
+router.post('/refresh', async (req, res) => {
+    const token = getTokenFromHeaders(req.headers);
+    if (!token) {
+      return res.jsonUnauthorized(null, 'Invalid token');
+    }
+  
+    try {
+      const decoded = verifyRefreshJwt(token);
+      const account = await Account.findByPk(decoded.id);
+      if (!account) return res.jsonUnauthorized(null, 'Invalid token');
+  
+      if (decoded.version !== account.jwtVersion) {
+        return res.jsonUnauthorized(null, 'Invalid token');
+      }
+  
+      const meta = {
+        token: generateJwt({ id: account.id }),
+      };
+  
+      return res.jsonOK(null, null, meta);
+    } catch (error) {
+      return res.jsonUnauthorized(null, 'Invalid token');
+    }
+  });
 
 module.exports = router;

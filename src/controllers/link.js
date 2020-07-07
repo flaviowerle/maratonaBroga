@@ -5,34 +5,33 @@ const { Link }= require('../models');
 const router = express.Router();
 
 router.get('/',async(req, res)=>{
-    const accountId = 1; ///req.id;
-    const links = await Link.fildOne({where:{id, accountId}});
-    return res.jsonOk(links);
+    const {accountId} =req;
+    const links = await Link.fildAll({where:{accountId}});
+    return res.jsonOK(links);
 });   
 
 router.get('/:id',async(req, res)=>{
-   const accountId = 1; ///req.id;
+    const {accountId} =req;
    const { id }= req.params;
    const link = await Link.fildOne({where:{id, accountId}});
    if(!link) return res.jsonNotFound();
 
-    return res.jsonOk(link);
-})
+    return res.jsonOK(link);
+});
 
 router.post('/',async(req, res) => {
-   const accountId = 1;///req.id
-   const { label, url, isSocial } = req.body;
+   const {accountId, body} =req;
+   const { label, url, isSocial } = body;
    const image = 'https://google.com/image.jpg';
    
    const link = await Link.create ({label, url, isSocial, image, accountId });
    
-    return res.jsonOk(link); 
+    return res.jsonOK(link); 
 });
 
 router.put ('/:id',async(req, res)=>{
-   const accountId = 1;
+   const {accountId, body} =req;
    const { id }= req.params;
-   const { body } = req;
    const fields = ['label', 'url', 'isSocial'];
 
 
@@ -41,7 +40,7 @@ router.put ('/:id',async(req, res)=>{
 
     fields.map((fieldName)=>{   
         const newValue = body[fieldName];
-        if(newValue)link[fieldName] = newValue;
+        if(newValue) link[fieldName] = newValue;
     });
 
 
@@ -53,11 +52,12 @@ router.put ('/:id',async(req, res)=>{
 });
 
 router.delete('/:id',async(req, res)=>{
-    const accountId =1;///req.id;
+    const {accountId} =req;
+    const {id}= req.params;
     const link = await Link.fildOne({where: {id, accountId}});
     if(!link) return res.jsonNotFound();
     await link.destroy();
-    return res.jsonOk();
+    return res.jsonOK();
 
 });
 
